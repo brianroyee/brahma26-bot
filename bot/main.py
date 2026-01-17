@@ -41,6 +41,24 @@ def main():
     app.add_handler(CallbackQueryHandler(events_callback, pattern="^events_"))
     app.add_handler(CallbackQueryHandler(event_detail_callback, pattern="^event_"))
     
+    # Keep-Alive Thread (Prevents Render from sleeping)
+    import threading
+    import time
+    import requests
+
+    def keep_alive():
+        url = os.getenv("API_BASE_URL", "http://localhost:8000")
+        logger.info(f"⏰ Keep-alive timer started. Pinging {url} every 14 mins.")
+        while True:
+            try:
+                requests.get(f"{url}/")
+                logger.info("⏰ Ping sent to backend.")
+            except Exception as e:
+                logger.error(f"⏰ Ping failed: {e}")
+            time.sleep(840) # 14 minutes
+
+    threading.Thread(target=keep_alive, daemon=True).start()
+
     # Start polling
     logger.info("🤖 Brahma 26 Bot starting...")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
