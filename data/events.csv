@@ -1,0 +1,4 @@
+name,category,description,venue,start_time,end_time,rules,hashtags,volunteer_contacts
+"Classical Dance","Cultural","Traditional dance competition showcasing various classical dance forms","Main Auditorium","2026-01-25T18:00:00","2026-01-25T20:00:00","Solo or duo performances. Time limit: 8 minutes","#Brahma26 #ClassicalDance #Cultural","[{""name"":""Volunteer 1"",""phone"":""+91 98765 43210""}]"
+"Western Dance","Cultural","High-energy western dance competition","Open Air Theatre","2026-01-25T20:00:00","2026-01-25T22:00:00","Group performance (4-15 members). Time limit: 10 minutes","#Brahma26 #WesternDance #Cultural","[{""name"":""Volunteer 2"",""phone"":""+91 87654 32109""}]"
+"Coding Contest","Technical","24-hour coding marathon","Computer Lab","2026-01-26T10:00:00","2026-01-27T10:00:00","Teams of 2-3. Bring your own laptop","#Brahma26 #Coding #Technical","[{""name"":""Volunteer 3"",""phone"":""+91 76543 21098""}]"
