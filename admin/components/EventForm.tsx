@@ -117,11 +117,15 @@ export default function EventForm({ eventId }: EventFormProps) {
                         </div>
                         <div className="space-y-1">
                             <label className="text-xs font-medium text-zinc-400">Category</label>
-                            <input
-                                {...register("category")}
-                                className="w-full glass-input px-4 py-2 rounded-lg text-white"
-                                placeholder="e.g. Music"
-                            />
+                            <select
+                                {...register("category", { required: true })}
+                                className="w-full glass-input px-4 py-2 rounded-lg text-white bg-zinc-900/50 [color-scheme:dark]"
+                            >
+                                <option value="">Select Category</option>
+                                <option value="Technical">Technical</option>
+                                <option value="Cultural">Cultural</option>
+                                <option value="General">General</option>
+                            </select>
                         </div>
                     </div>
 

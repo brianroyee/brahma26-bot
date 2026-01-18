@@ -1,8 +1,10 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
+// Use relative /api path for Next.js API routes (same origin)
+// Falls back to external URL if NEXT_PUBLIC_API_URL is set (for external backend)
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
+    baseURL: process.env.NEXT_PUBLIC_API_URL || "/api",
     headers: {
         "Content-Type": "application/json",
     },

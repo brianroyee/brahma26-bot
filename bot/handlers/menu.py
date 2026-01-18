@@ -48,15 +48,8 @@ async def show_main_menu(query):
 
 async def show_categories(query):
     """Show event categories."""
-    categories = get_categories()
-    
-    if not categories:
-        keyboard = [[InlineKeyboardButton("🔙 Back", callback_data="menu_back")]]
-        await query.edit_message_text(
-            "No event categories found.",
-            reply_markup=InlineKeyboardMarkup(keyboard)
-        )
-        return
+    # Fixed categories
+    categories = ["Technical", "Cultural", "General"]
     
     keyboard = [[InlineKeyboardButton(f"📂 {cat}", callback_data=f"cat_{cat}")] for cat in categories]
     keyboard.append([InlineKeyboardButton("📋 All Events", callback_data="cat_all")])
