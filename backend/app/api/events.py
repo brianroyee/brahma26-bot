@@ -53,7 +53,7 @@ class EventResponse(EventBase):
 @router.get("/", response_model=List[dict])
 async def list_events(
     category: Optional[str] = Query(None),
-    active_only: bool = Query(True)
+    active_only: bool = Query(False)
 ):
     """List all events, optionally filtered by category."""
     sql = "SELECT * FROM events WHERE 1=1"
@@ -161,6 +161,9 @@ async def update_event(event_id: int, event: EventUpdate, user: dict = Depends(r
 
 @router.delete("/{event_id}")
 async def delete_event(event_id: int, user: dict = Depends(require_role(["super_admin"]))):
-    """Soft delete an event (set is_active = 0)."""
-    execute("UPDATE events SET is_active = 0 WHERE id = ?", [event_id])
+    """Delete an event permanently."""
+    existing = fetch_one("SELECT id FROM events WHERE id = ?", [event_id])
+    if not existing:
+        raise HTTPException(status_code=404, detail="Event not found")
+    execute("DELETE FROM events WHERE id = ?", [event_id])
     return {"message": "Event deleted", "id": event_id}
