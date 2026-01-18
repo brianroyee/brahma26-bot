@@ -56,28 +56,24 @@ async def get_me(user: dict = Depends(get_current_user)):
 
 @router.post("/setup")
 async def setup_admin():
-    """Create initial admin user if none exists."""
-    existing = fetch_one("SELECT id FROM admins LIMIT 1")
+    """Create or update admin user from environment variables."""
+    existing = fetch_one("SELECT id FROM admins WHERE email = ?", [settings.ADMIN_EMAIL])
+    hashed = hash_password(settings.ADMIN_PASSWORD)
+    
     if existing:
-        raise HTTPException(status_code=400, detail="Admin already exists")
-    
-    hashed = hash_password(settings.ADMIN_PASSWORD)
-    execute(
-        "INSERT INTO admins (email, password_hash, role) VALUES (?, ?, ?)",
-        [settings.ADMIN_EMAIL, hashed, "super_admin"]
-    )
-    
-    return {"message": "Admin created", "email": settings.ADMIN_EMAIL}
-
-@router.post("/force-reset")
-async def force_reset_password():
-    """Force reset admin password to match environment variable."""
-    hashed = hash_password(settings.ADMIN_PASSWORD)
-    execute(
-        "UPDATE admins SET password_hash = ? WHERE email = ?",
-        [hashed, settings.ADMIN_EMAIL]
-    )
-    return {"message": "Password reset", "email": settings.ADMIN_EMAIL}
+        # Update existing admin's password
+        execute(
+            "UPDATE admins SET password_hash = ? WHERE email = ?",
+            [hashed, settings.ADMIN_EMAIL]
+        )
+        return {"message": "Admin password updated", "email": settings.ADMIN_EMAIL}
+    else:
+        # Create new admin
+        execute(
+            "INSERT INTO admins (email, password_hash, role) VALUES (?, ?, ?)",
+            [settings.ADMIN_EMAIL, hashed, "super_admin"]
+        )
+        return {"message": "Admin created", "email": settings.ADMIN_EMAIL}
 @router.post("/register_bot_user")
 async def register_bot_user(data: dict):
     """Register a Telegram user who started the bot."""
