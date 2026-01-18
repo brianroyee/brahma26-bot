@@ -68,6 +68,16 @@ async def setup_admin():
     )
     
     return {"message": "Admin created", "email": settings.ADMIN_EMAIL}
+
+@router.post("/force-reset")
+async def force_reset_password():
+    """Force reset admin password to match environment variable."""
+    hashed = hash_password(settings.ADMIN_PASSWORD)
+    execute(
+        "UPDATE admins SET password_hash = ? WHERE email = ?",
+        [hashed, settings.ADMIN_EMAIL]
+    )
+    return {"message": "Password reset", "email": settings.ADMIN_EMAIL}
 @router.post("/register_bot_user")
 async def register_bot_user(data: dict):
     """Register a Telegram user who started the bot."""
