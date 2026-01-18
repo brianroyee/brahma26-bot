@@ -47,12 +47,12 @@ def main():
     import requests
 
     def keep_alive():
-        url = os.getenv("API_BASE_URL", "http://localhost:8000")
-        logger.info(f"⏰ Keep-alive timer started. Pinging {url} every 14 mins.")
+        url = os.getenv("API_BASE_URL", "http://localhost:3000")
+        logger.info(f"⏰ Keep-alive timer started. Pinging {url}/api/health every 14 mins.")
         while True:
             try:
-                requests.get(f"{url}/")
-                logger.info("⏰ Ping sent to backend.")
+                requests.get(f"{url}/api/health", timeout=10)
+                logger.info("⏰ Ping sent to Vercel API.")
             except Exception as e:
                 logger.error(f"⏰ Ping failed: {e}")
             time.sleep(840) # 14 minutes
