@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchOne, execute } from "@/lib/db";
 import { validateToken } from "@/lib/auth";
+import { InValue } from "@libsql/client";
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -52,7 +53,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
         // Build dynamic update
         const updates: string[] = [];
-        const values: unknown[] = [];
+        const values: InValue[] = [];
 
         const fields = [
             "name", "category", "description", "venue", "start_time", "end_time",
