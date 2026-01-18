@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchAll, execute } from "@/lib/db";
 import { validateToken } from "@/lib/auth";
+import { InValue } from "@libsql/client";
 
 // GET /api/events - List all events
 export async function GET(request: NextRequest) {
@@ -10,7 +11,7 @@ export async function GET(request: NextRequest) {
         const activeOnly = searchParams.get("active_only") === "true";
 
         let sql = "SELECT * FROM events WHERE 1=1";
-        const params: unknown[] = [];
+        const params: InValue[] = [];
 
         if (activeOnly) {
             sql += " AND is_active = 1";
