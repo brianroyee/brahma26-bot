@@ -1,14 +1,13 @@
 """
 Menu callback handlers
 """
-import json
+import os
+import requests
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
+from api_client import get_content, get_categories, get_events
 
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from api_client import get_content, get_categories
+API_BASE = os.getenv("API_BASE_URL", "http://127.0.0.1:3000")
 
 async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle main menu button callbacks."""
@@ -19,36 +18,38 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if action == "events":
         await show_categories(query)
-    elif action == "announcements":
-        await show_announcements(query)
-    elif action == "faq":
-        await show_faq(query)
-    elif action == "emergency":
-        await show_emergency(query)
-    elif action == "about":
-        await show_about(query)
+    elif action == "timeline":
+        await show_timeline(query)
+    elif action == "contact":
+        await show_contact(query)
+    elif action == "results":
+        await show_results(query)
+    elif action == "status":
+        await show_status(query)
+    elif action == "developer":
+        await show_developer(query)
     elif action == "back":
         await show_main_menu(query)
 
 async def show_main_menu(query):
     """Show main menu."""
     keyboard = [
-        [InlineKeyboardButton("📅 View Events", callback_data="menu_events")],
-        [InlineKeyboardButton("📢 Announcements", callback_data="menu_announcements")],
-        [InlineKeyboardButton("❓ FAQ", callback_data="menu_faq")],
-        [InlineKeyboardButton("🚨 Emergency Contacts", callback_data="menu_emergency")],
-        [InlineKeyboardButton("ℹ️ About", callback_data="menu_about")]
+        [InlineKeyboardButton("📅 Event Details", callback_data="menu_events")],
+        [InlineKeyboardButton("⏰ Event Timeline", callback_data="menu_timeline")],
+        [InlineKeyboardButton("📞 Contact Team", callback_data="menu_contact")],
+        [InlineKeyboardButton("🏆 Event Results", callback_data="menu_results")],
+        [InlineKeyboardButton("🤖 Bot Status", callback_data="menu_status")],
+        [InlineKeyboardButton("👨‍💻 Developer Info", callback_data="menu_developer")]
     ]
     
     await query.edit_message_text(
-        "🎉 *Brahma 26 Main Menu*\n\nChoose an option:",
+        "🎊 *Brahma'26 helpline Bot!* 🎉\n\nHow can I help you today?",
         parse_mode="Markdown",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
 async def show_categories(query):
     """Show event categories."""
-    # Fixed categories
     categories = ["Technical", "Cultural", "General"]
     
     keyboard = [[InlineKeyboardButton(f"📂 {cat}", callback_data=f"cat_{cat}")] for cat in categories]
@@ -56,60 +57,92 @@ async def show_categories(query):
     keyboard.append([InlineKeyboardButton("🔙 Back", callback_data="menu_back")])
     
     await query.edit_message_text(
-        "📅 *Select a Category*\n\nChoose a category to view events:",
+        "📅 *Event Details*\n\nSelect a category to view events:",
         parse_mode="Markdown",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
-async def show_announcements(query):
-    """Show announcements placeholder."""
-    keyboard = [[InlineKeyboardButton("🔙 Back", callback_data="menu_back")]]
-    await query.edit_message_text(
-        "📢 *Announcements*\n\nNo announcements yet. Stay tuned!",
-        parse_mode="Markdown",
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
-
-async def show_faq(query):
-    """Show FAQ from API."""
-    content = get_content("faq")
+async def show_timeline(query):
+    """Show event timeline."""
+    events = get_events(active_only=True)
     
-    text = "❓ *Frequently Asked Questions*\n\n"
-    if content:
-        try:
-            faqs = json.loads(content)
-            for faq in faqs:
-                text += f"*Q: {faq.get('q', '')}*\n{faq.get('a', '')}\n\n"
-        except:
-            text += "FAQ content unavailable."
+    text = "⏰ *Event Timeline*\n\n"
+    if events:
+        for e in events[:10]:  # Show max 10 events
+            name = e.get('name', 'Event')
+            time = e.get('start_time', 'TBD')
+            text += f"• *{name}*\n  📍 {time}\n\n"
     else:
-        text += "No FAQs available."
+        text += "No upcoming events scheduled."
     
     keyboard = [[InlineKeyboardButton("🔙 Back", callback_data="menu_back")]]
     await query.edit_message_text(text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(keyboard))
 
-async def show_emergency(query):
-    """Show emergency contacts."""
+async def show_contact(query):
+    """Show contact team information."""
     content = get_content("emergency_contacts")
     
-    text = "🚨 *Emergency Contacts*\n\n"
+    text = "📞 *Contact Team*\n\n"
     if content:
         try:
+            import json
             contacts = json.loads(content)
             for c in contacts:
-                text += f"📞 *{c.get('name', '')}*: {c.get('phone', '')}\n"
+                text += f"👤 *{c.get('name', '')}*\n📱 {c.get('phone', '')}\n\n"
         except:
             text += "Contact information unavailable."
     else:
-        text += "No emergency contacts available."
+        text += "No contacts available yet.\nCheck back soon!"
     
     keyboard = [[InlineKeyboardButton("🔙 Back", callback_data="menu_back")]]
     await query.edit_message_text(text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(keyboard))
 
-async def show_about(query):
-    """Show about information."""
-    content = get_content("about")
-    text = f"ℹ️ *About Brahma 26*\n\n{content or 'Information coming soon!'}"
+async def show_results(query):
+    """Show event results."""
+    text = "🏆 *Event Results*\n\n"
+    text += "Results will be announced after each event.\n"
+    text += "Stay tuned for updates! 🎉"
+    
+    keyboard = [[InlineKeyboardButton("🔙 Back", callback_data="menu_back")]]
+    await query.edit_message_text(text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(keyboard))
+
+async def show_status(query):
+    """Show bot status."""
+    try:
+        r = requests.get(f"{API_BASE}/api/health", timeout=5)
+        if r.status_code == 200:
+            data = r.json()
+            db_status = "✅ Connected" if data.get("database") == "connected" else "❌ Disconnected"
+            api_status = "✅ Online"
+        else:
+            db_status = "❌ Error"
+            api_status = "⚠️ Unstable"
+    except:
+        db_status = "❌ Offline"
+        api_status = "❌ Offline"
+    
+    text = f"""🤖 *Bot Status*
+
+*API Status:* {api_status}
+*Database:* {db_status}
+*Bot:* ✅ Running
+
+_Last checked: just now_"""
+    
+    keyboard = [[InlineKeyboardButton("🔙 Back", callback_data="menu_back")]]
+    await query.edit_message_text(text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(keyboard))
+
+async def show_developer(query):
+    """Show developer info."""
+    text = """👨‍💻 *Developer Info*
+
+*Developed by:* Brahma'26 Tech Team
+*Version:* 2.0.0
+*Platform:* Vercel + Render
+
+💡 _Built with ❤️ for Brahma 2026_
+
+For issues, contact the organizing committee."""
     
     keyboard = [[InlineKeyboardButton("🔙 Back", callback_data="menu_back")]]
     await query.edit_message_text(text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(keyboard))
