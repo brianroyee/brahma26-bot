@@ -57,7 +57,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
         const fields = [
             "name", "category", "description", "venue", "start_time", "end_time",
-            "rules", "hashtags", "volunteer_contacts", "poster_caption", "poster_file_id"
+            "rules", "hashtags", "volunteer_contacts", "poster_caption", "poster_file_id",
+            "results", "registration_fee", "registration_link"
         ];
 
         for (const field of fields) {

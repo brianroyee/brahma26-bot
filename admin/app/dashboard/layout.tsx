@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import {
     Calendar, LayoutDashboard, LogOut,
-    Settings, FileText, Megaphone, Activity, Wifi, WifiOff
+    Settings, FileText, Megaphone, Activity, Wifi, WifiOff, Trophy
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import api from "@/lib/api";
@@ -14,6 +14,7 @@ import api from "@/lib/api";
 const menuItems = [
     { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
     { icon: Calendar, label: "Events", href: "/dashboard/events" },
+    { icon: Trophy, label: "Results", href: "/dashboard/results" },
     { icon: Megaphone, label: "Announcements", href: "/dashboard/announcements" },
     { icon: FileText, label: "Content", href: "/dashboard/content" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings" },

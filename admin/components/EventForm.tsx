@@ -134,8 +134,8 @@ export default function EventForm({ eventId }: EventFormProps) {
                         type="button"
                         onClick={() => setIsActive(!isActive)}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${isActive
-                                ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                : "bg-zinc-800 text-zinc-400 border border-zinc-700"
+                            ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                            : "bg-zinc-800 text-zinc-400 border border-zinc-700"
                             }`}
                     >
                         {isActive ? "● Active" : "○ Inactive"}
@@ -241,6 +241,35 @@ export default function EventForm({ eventId }: EventFormProps) {
                                     className="w-full bg-zinc-800/50 border border-zinc-700 pl-10 pr-4 py-3 rounded-xl text-white focus:outline-none focus:border-purple-500 transition-colors [color-scheme:dark]"
                                 />
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Registration Section */}
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6">
+                    <div className="flex items-center gap-2 mb-6">
+                        <FileText className="h-5 w-5 text-green-400" />
+                        <h2 className="text-lg font-semibold text-white">Registration</h2>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label className="block text-sm font-medium text-zinc-400 mb-2">Registration Fee</label>
+                            <input
+                                {...register("registration_fee")}
+                                className="w-full bg-zinc-800/50 border border-zinc-700 px-4 py-3 rounded-xl text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500 transition-colors"
+                                placeholder="e.g. ₹100 per team, Free"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-zinc-400 mb-2">Registration Link</label>
+                            <input
+                                {...register("registration_link")}
+                                type="url"
+                                className="w-full bg-zinc-800/50 border border-zinc-700 px-4 py-3 rounded-xl text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500 transition-colors"
+                                placeholder="https://forms.google.com/..."
+                            />
                         </div>
                     </div>
                 </div>

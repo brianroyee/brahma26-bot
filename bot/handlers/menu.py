@@ -99,9 +99,23 @@ async def show_contact(query):
 
 async def show_results(query):
     """Show event results."""
+    events = get_events()
+    
+    # Filter events that have results
+    events_with_results = [e for e in events if e.get('results') and e.get('results').strip()]
+    
     text = "🏆 *Event Results*\n\n"
-    text += "Results will be announced after each event.\n"
-    text += "Stay tuned for updates! 🎉"
+    
+    if events_with_results:
+        for e in events_with_results[:10]:  # Show max 10
+            name = e.get('name', 'Event')
+            results = e.get('results', '')
+            text += f"*{name}*\n"
+            text += f"{results}\n\n"
+            text += "─────────────\n\n"
+    else:
+        text += "No results announced yet.\n"
+        text += "Stay tuned for updates! 🎉"
     
     keyboard = [[InlineKeyboardButton("🔙 Back", callback_data="menu_back")]]
     await query.edit_message_text(text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(keyboard))

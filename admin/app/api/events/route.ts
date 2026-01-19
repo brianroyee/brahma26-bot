@@ -45,21 +45,32 @@ export async function POST(request: NextRequest) {
 
         const data = await request.json();
 
+        // Sanitize values - convert undefined/null to empty strings or null
+        const sanitize = (val: unknown): string | null => {
+            if (val === undefined || val === null || val === "") return null;
+            if (typeof val === "boolean") return val ? "1" : "0";
+            if (typeof val === "object") return JSON.stringify(val);
+            return String(val);
+        };
+
         await execute(
-            `INSERT INTO events (name, category, description, venue, start_time, end_time, rules, hashtags, volunteer_contacts, poster_caption, poster_file_id)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO events (name, category, description, venue, start_time, end_time, rules, hashtags, volunteer_contacts, poster_caption, poster_file_id, registration_fee, registration_link, is_active)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-                data.name,
-                data.category,
-                data.description,
-                data.venue,
-                data.start_time,
-                data.end_time,
-                data.rules,
-                data.hashtags,
-                data.volunteer_contacts,
-                data.poster_caption,
-                data.poster_file_id,
+                sanitize(data.name),
+                sanitize(data.category),
+                sanitize(data.description),
+                sanitize(data.venue),
+                sanitize(data.start_time),
+                sanitize(data.end_time),
+                sanitize(data.rules),
+                sanitize(data.hashtags),
+                sanitize(data.volunteer_contacts),
+                sanitize(data.poster_caption),
+                sanitize(data.poster_file_id),
+                sanitize(data.registration_fee),
+                sanitize(data.registration_link),
+                data.is_active ? 1 : 0,
             ]
         );
 
