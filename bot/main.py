@@ -3,6 +3,8 @@ Brahma 26 Telegram Bot - Main Entry
 """
 import os
 import logging
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
 from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler
@@ -21,6 +23,23 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Simple HTTP health server for Render (free tier workaround)
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/plain')
+        self.end_headers()
+        self.wfile.write(b'Bot is running!')
+    
+    def log_message(self, format, *args):
+        pass  # Suppress HTTP logs
+
+def start_health_server():
+    port = int(os.getenv("PORT", 10000))
+    server = HTTPServer(('0.0.0.0', port), HealthHandler)
+    logger.info(f"🌐 Health server running on port {port}")
+    server.serve_forever()
+
 def main():
     """Start the bot."""
     token = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -28,6 +47,9 @@ def main():
     if not token:
         logger.error("TELEGRAM_BOT_TOKEN not set in .env")
         return
+    
+    # Start health server in background (for Render free tier)
+    threading.Thread(target=start_health_server, daemon=True).start()
     
     # Create application
     app = Application.builder().token(token).build()
@@ -41,24 +63,6 @@ def main():
     app.add_handler(CallbackQueryHandler(events_callback, pattern="^events_"))
     app.add_handler(CallbackQueryHandler(event_detail_callback, pattern="^event_"))
     
-    # Keep-Alive Thread (Prevents Render from sleeping)
-    import threading
-    import time
-    import requests
-
-    def keep_alive():
-        url = os.getenv("API_BASE_URL", "http://localhost:3000")
-        logger.info(f"⏰ Keep-alive timer started. Pinging {url}/api/health every 14 mins.")
-        while True:
-            try:
-                requests.get(f"{url}/api/health", timeout=10)
-                logger.info("⏰ Ping sent to Vercel API.")
-            except Exception as e:
-                logger.error(f"⏰ Ping failed: {e}")
-            time.sleep(840) # 14 minutes
-
-    threading.Thread(target=keep_alive, daemon=True).start()
-
     # Start polling
     logger.info("🤖 Brahma 26 Bot starting...")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
